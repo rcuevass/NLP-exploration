@@ -4,3 +4,4 @@ pip install gensim
 pip install nltk
 pip install stop-words
 pip install pyldavis
+pip install spacy
