@@ -1,2 +1,9 @@
 # idea
 .idea
+
+# logs
+logs/*.log
+logs/*.log.*
+
+# data
+data/
