@@ -1,0 +1,6 @@
+conda create --name nlp --clone base
+conda activate nlp
+pip install gensim
+pip install nltk
+pip install stop-words
+pip install pyldavis
