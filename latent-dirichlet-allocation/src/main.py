@@ -1,7 +1,7 @@
 import sys
 import re, numpy as np, pandas as pd
 from utils.logger import get_log_object
-from utils.data_processing import get_data_as_list, get_biagram_triagram_models, process_words
+from utils.data_processing import get_data_as_list, process_words
 from pprint import pprint
 
 # Gensim
@@ -58,3 +58,27 @@ log.info(str(data_words[:1]))
 log.info('getting processed words')
 data_processed = process_words(list_words=data_words,stop_words=stop_words,
                                allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
+
+log.info('creating data dictionary...')
+id2word = corpora.Dictionary(data_processed)
+
+# Create Corpus: Term Document Frequency
+log.info('creating term document frequency...')
+corpus = [id2word.doc2bow(text) for text in data_processed]
+
+# Build LDA model
+log.info('building LDA model...')
+lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
+                                            id2word=id2word,
+                                            num_topics=4,
+                                            random_state=100,
+                                            update_every=1,
+                                            chunksize=10,
+                                            passes=10,
+                                            alpha='symmetric',
+                                            iterations=20,
+                                            per_word_topics=True)
+
+log.info('topics...')
+log.info(str(pprint(lda_model.print_topics())))
+
