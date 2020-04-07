@@ -1,7 +1,7 @@
 import sys
 import re, numpy as np, pandas as pd
 from utils.logger import get_log_object
-from utils.data_processing import sent_to_words
+from utils.data_processing import get_data_as_list, get_biagram_triagram_models, process_words
 from pprint import pprint
 
 # Gensim
@@ -39,14 +39,22 @@ df.to_csv('../data/output/news_data_preprocessed.csv')
 log.info('saving dataframe to output data')
 '''
 
+'''
+log.info('Extracting data')
+extract_data()
+log.info('Data extracted')
+'''
+
 log.info('Reading data')
 df = pd.read_csv('../data/output/news_data_preprocessed.csv')
 
 log.info('Converting to list')
-data = df.content.values.tolist()
-data_words = list(sent_to_words(data))
+data_words = get_data_as_list(data_frame=df)
 log.info(str(data_words[:1]))
 
+#log.info('Get n-grams')
+#dictionary_n_grams = get_biagram_triagram_models(data_words=data_words)
 
-
-
+log.info('getting processed words')
+data_processed = process_words(list_words=data_words,stop_words=stop_words,
+                               allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
