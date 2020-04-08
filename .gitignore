@@ -10,3 +10,6 @@ data/
 
 # models
 models/*.pkl
+
+# corpus
+corpus/*.pkl
