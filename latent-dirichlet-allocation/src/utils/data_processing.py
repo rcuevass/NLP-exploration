@@ -68,7 +68,6 @@ def process_words(list_words: list, stop_words: list,
     for sent in texts:
         doc = nlp(" ".join(sent))
         texts_out.append([token.lemma_ for token in doc if token.pos_ in allowed_postags])
-    log.info('removing stopwords after lematization')
     texts_out = [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts_out]
     return texts_out
 

@@ -13,7 +13,6 @@ from gensim.models import CoherenceModel
 import pyLDAvis.gensim
 import pickle
 
-
 log = get_log_object()
 
 # Load corpus from pkl file
@@ -29,7 +28,15 @@ with open(pkl_filename, 'rb') as file:
 log.info('topics...')
 log.info(str(pprint(lda_model.print_topics())))
 
-vis = pyLDAvis.gensim.prepare(lda_model, corpus, dictionary=lda_model.id2word)
+#vis = pyLDAvis.gensim.prepare(topic_model=lda_model, corpus=corpus, dictionary=lda_model.id2word)
+
+
+# https://stackoverflow.com/questions/56707416/pyldavis-prepare-is-slow
+vis = pyLDAvis.gensim.prepare(lda_model, corpus, dictionary=lda_model.id2word, mds='mmds')
+pyLDAvis.show(vis)
+
+#vis = pyLDAvis.gensim.prepare(lda, corpus, id2word, mds='mmds')
+#pyLDAvis.show(vis)
 
 '''
 # to review: https://stackoverflow.com/questions/43317056/pyldavis-unable-to-view-the-graph
