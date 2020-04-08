@@ -7,3 +7,6 @@ logs/*.log.*
 
 # data
 data/
+
+# models
+models/*.pkl

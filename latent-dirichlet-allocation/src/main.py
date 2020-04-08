@@ -10,7 +10,7 @@ import gensim.corpora as corpora
 from gensim.utils import lemmatize, simple_preprocess
 from gensim.models import CoherenceModel
 import pyLDAvis.gensim
-import matplotlib.pyplot as plt
+import pickle
 
 # NLTK Stop words
 
@@ -28,23 +28,6 @@ stop_words = stopwords.words('english')
 log.info('Stopwords obtained...')
 stop_words.extend(['from', 'subject', 're', 'edu', 'use', 'not', 'would', 'say', 'could', '_', 'be', 'know', 'good', 'go', 'get', 'do', 'done', 'try', 'many', 'some', 'nice', 'thank', 'think', 'see', 'rather', 'easy', 'easily', 'lot', 'lack', 'make', 'want', 'seem', 'run', 'need', 'even', 'right', 'line', 'even', 'also', 'may', 'take', 'come'])
 log.info('Stopwords extended...')
-
-'''
-# Import Dataset
-df = pd.read_json('https://raw.githubusercontent.com/selva86/datasets/master/newsgroups.json')
-log.info('dataframe obtained...')
-df.to_csv('../data/input/news_data_raw.csv')
-log.info('saving dataframe to input data')
-df = df.loc[df.target_names.isin(['soc.religion.christian', 'rec.sport.hockey', 'talk.politics.mideast', 'rec.motorcycles']) , :]
-df.to_csv('../data/output/news_data_preprocessed.csv')
-log.info('saving dataframe to output data')
-'''
-
-'''
-log.info('Extracting data')
-extract_data()
-log.info('Data extracted')
-'''
 
 log.info('Reading data')
 df = pd.read_csv('../data/output/news_data_preprocessed.csv')
@@ -67,6 +50,12 @@ id2word = corpora.Dictionary(data_processed)
 log.info('creating term document frequency...')
 corpus = [id2word.doc2bow(text) for text in data_processed]
 
+pkl_filename = '../corpus/corpus.pkl'
+log.info('saving corpus to pkl file to %s ', pkl_filename)
+with open(pkl_filename, 'wb') as file:
+    pickle.dump(corpus, file)
+
+
 # Build LDA model
 log.info('building LDA model...')
 lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
@@ -80,10 +69,8 @@ lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
                                             iterations=20,
                                             per_word_topics=True)
 
-log.info('topics...')
-log.info(str(pprint(lda_model.print_topics())))
-
-vis = pyLDAvis.gensim.prepare(lda_model, corpus, dictionary=lda_model.id2word)
-
-# to review: https://stackoverflow.com/questions/43317056/pyldavis-unable-to-view-the-graph
-#pyLDAvis.show(data=vis)
+# saving model
+pkl_filename = '../models/lda_model.pkl'
+log.info('saving lda model to pkl file to %s ', pkl_filename)
+with open(pkl_filename, 'wb') as file:
+    pickle.dump(lda_model, file)
