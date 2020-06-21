@@ -75,7 +75,7 @@ def get_article_summary(sentences, sentence_weight, threshold, substring_value):
     return article_summary
 
 
-def run_article_summary(article: str, substring_threshold_value: int = 7) -> str:
+def run_article_summary(article: str, substring_threshold_value: int = 7, print_reduction_ratio: bool = False) -> str:
     # creating a dictionary for the word frequency table
     frequency_table = create_dictionary_table(article)
 
@@ -92,5 +92,20 @@ def run_article_summary(article: str, substring_threshold_value: int = 7) -> str
     # producing the summary
     article_summary = get_article_summary(sentences, sentence_scores, 1.5 * threshold,
                                           substring_value=substring_threshold_value)
+
+    if print_reduction_ratio:
+        # length of original document
+        initial_length = len(article.split())
+        # length of summary
+        summary_length = len(article_summary.split())
+
+        print('Length of initial document = ', initial_length)
+        print('Length of summarized document = ', summary_length)
+
+        # reduction
+        fraction_reduction = (1-(summary_length/initial_length))*100
+        fraction_reduction = round(fraction_reduction, 2)
+
+        print('Original text got reduced by ', fraction_reduction, ' %')
 
     return article_summary
