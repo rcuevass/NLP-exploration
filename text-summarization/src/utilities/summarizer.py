@@ -62,12 +62,13 @@ def calculate_average_score(sentence_weight) -> float:
     return average_score
 
 
-def _get_article_summary(sentences, sentence_weight, threshold):
+def get_article_summary(sentences, sentence_weight, threshold, substring_value):
     sentence_counter = 0
     article_summary = ''
 
     for sentence in sentences:
-        if sentence[:7] in sentence_weight and sentence_weight[sentence[:7]] >= threshold:
+        sentence_reduced = sentence[:substring_value]
+        if sentence_reduced in sentence_weight and sentence_weight[sentence_reduced] >= threshold:
             article_summary += " " + sentence
             sentence_counter += 1
 
@@ -89,6 +90,7 @@ def run_article_summary(article: str, substring_threshold_value: int = 7) -> str
     threshold = calculate_average_score(sentence_scores)
 
     # producing the summary
-    article_summary = _get_article_summary(sentences, sentence_scores, 1.5 * threshold)
+    article_summary = get_article_summary(sentences, sentence_scores, 1.5 * threshold,
+                                          substring_value=substring_threshold_value)
 
     return article_summary
