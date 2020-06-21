@@ -16,3 +16,4 @@ corpus/*.pkl
 
 # notebooks checkpoints
 notebooks/.ipynb_checkpoints
+named-entity-recognizer/.ipynb_checkpoints
