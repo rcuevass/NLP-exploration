@@ -1,0 +1,8 @@
+conda create --name nlp --clone base
+conda activate nlp
+pip install gensim
+pip install nltk
+pip install stop-words
+pip install pyldavis
+pip install spacy
+python -m spacy download en_core_web_sm
