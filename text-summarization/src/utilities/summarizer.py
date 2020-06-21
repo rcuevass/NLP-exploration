@@ -6,7 +6,7 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize, sent_tokenize
 
 
-def _create_dictionary_table(text_string) -> dict:
+def create_dictionary_table(text_string) -> dict:
     # removing stop words
     stop_words = set(stopwords.words("english"))
 
@@ -29,27 +29,28 @@ def _create_dictionary_table(text_string) -> dict:
     return frequency_table
 
 
-def _calculate_sentence_scores(sentences, frequency_table, substring_threshold) -> dict:
+def calculate_sentence_scores(sentences, frequency_table, substring_threshold) -> dict:
     # algorithm for scoring a sentence by its words
     sentence_weight = dict()
 
     for sentence in sentences:
+        # reduced sentence
+        sentence_reduced = sentence[:substring_threshold]
         sentence_wordcount_without_stop_words = 0
         for word_weight in frequency_table:
             if word_weight in sentence.lower():
                 sentence_wordcount_without_stop_words += 1
-                if sentence[:substring_threshold] in sentence_weight:
-                    sentence_weight[sentence[:substring_threshold]] += frequency_table[word_weight]
+                if sentence_reduced in sentence_weight:
+                    sentence_weight[sentence_reduced] += frequency_table[word_weight]
                 else:
-                    sentence_weight[sentence[:substring_threshold]] = frequency_table[word_weight]
+                    sentence_weight[sentence_reduced] = frequency_table[word_weight]
 
-        sentence_weight[sentence[:substring_threshold]] =\
-            sentence_weight[sentence[:substring_threshold]] / sentence_wordcount_without_stop_words
+        sentence_weight[sentence_reduced] = sentence_weight[sentence_reduced] / sentence_wordcount_without_stop_words
 
     return sentence_weight
 
 
-def _calculate_average_score(sentence_weight) -> int:
+def calculate_average_score(sentence_weight) -> float:
     # calculating the average score for the sentences
     sum_values = 0
     for entry in sentence_weight:
@@ -73,18 +74,19 @@ def _get_article_summary(sentences, sentence_weight, threshold):
     return article_summary
 
 
-def run_article_summary(article: str, substring_threshold: int = 7) -> str:
+def run_article_summary(article: str, substring_threshold_value: int = 7) -> str:
     # creating a dictionary for the word frequency table
-    frequency_table = _create_dictionary_table(article)
+    frequency_table = create_dictionary_table(article)
 
     # tokenizing the sentences
     sentences = sent_tokenize(article)
 
     # algorithm for scoring a sentence by its words
-    sentence_scores = _calculate_sentence_scores(sentences, frequency_table, substring_threshold=substring_threshold)
+    sentence_scores = calculate_sentence_scores(sentences, frequency_table,
+                                                substring_threshold=substring_threshold_value)
 
     # getting the threshold
-    threshold = _calculate_average_score(sentence_scores)
+    threshold = calculate_average_score(sentence_scores)
 
     # producing the summary
     article_summary = _get_article_summary(sentences, sentence_scores, 1.5 * threshold)
