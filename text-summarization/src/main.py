@@ -28,8 +28,9 @@ def min_threshold(text_to_summarize, min_threshold: int = 5, max_threshold: int 
 
 
 if __name__ == '__main__':
-    wiki_link = 'https://en.wikipedia.org/wiki/20th_century'
-    # wiki_link = 'https://en.wikipedia.org/wiki/Investment_banking'
+    # wiki_link = 'https://en.wikipedia.org/wiki/20th_century'
+    wiki_link = 'https://en.wikipedia.org/wiki/Investment_banking'
+
     article_content = extract_text_from_wikipedia_link(wiki_link)
     # dict of length for various thresholds
     min_threshold_value = min_threshold(article_content)
