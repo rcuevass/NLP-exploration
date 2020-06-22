@@ -36,7 +36,7 @@ import spacy
 from spacy.util import minibatch, compounding
 
 # test the trained model
-#test_text = "I went to England and I was surprised to see James Bond riding a horse"
+# test_text = "I went to England and I was surprised to see James Bond riding a horse"
 test_text = "The name is Bond, James Bond riding a horse"
 
 # test the saved model
