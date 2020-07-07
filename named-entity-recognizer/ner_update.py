@@ -37,8 +37,9 @@ from spacy.util import minibatch, compounding
 
 
 # new entity label
-LABEL_ANIMAL = "ANIMAL"
-LABEL_PERSON = "PERSON"
+LABEL_ANIMAL = 'ANIMAL'
+LABEL_PERSON = 'PERSON'
+LABEL_ORGANIZATION = 'ORG'
 
 # training data
 # Note: If you're using an existing model, make sure to mix in examples of
@@ -68,11 +69,23 @@ TRAIN_DATA = [
 
     ("Is he around?", {"entities": []}),
 
+    ("Working is not fun", {"entities": []}),
+
+    ("I do not like working!", {"entities": []}),
+
+    ("Would you like to work for Northwest?", {"entities": [(27, 36, LABEL_ORGANIZATION)]}),
+
     ("James Bond seems to be very strong. Himself however, James Bond, does not think so",
      {"entities": [(0, 10, LABEL_PERSON), (53, 63, LABEL_PERSON)]}),
 
-
     ("James Bond has a beautiful horse", {"entities": [(0, 10, LABEL_PERSON), (27, 32, LABEL_ANIMAL)]}),
+
+    ("Northwest is a fantastic company!, let's go to Northwest", {"entities": [(0, 9, LABEL_ORGANIZATION),
+                                                                               (47, 56, LABEL_ORGANIZATION)]}),
+
+    ("I would love to work for Northwest", {"entities": [(25, 34, LABEL_ORGANIZATION)]}),
+
+
 
 ]
 
@@ -83,7 +96,7 @@ TRAIN_DATA = [
     output_dir=("Optional output directory", "option", "o", Path),
     n_iter=("Number of training iterations", "option", "n", int),
 )
-def main(model=None, new_model_name="animal", output_dir='models/animals_persons/', n_iter=30):
+def main(model=None, new_model_name="animal", output_dir='models/wild/', n_iter=30):
     """Set up the pipeline and entity recognizer, and train the new entity."""
     random.seed(2020)
     if model is not None:
@@ -103,6 +116,7 @@ def main(model=None, new_model_name="animal", output_dir='models/animals_persons
 
     ner.add_label(LABEL_ANIMAL)  # add new entity label to entity recognizer
     ner.add_label(LABEL_PERSON)
+    ner.add_label(LABEL_ORGANIZATION)
     # Adding extraneous labels shouldn't mess anything up
     ner.add_label("VEGETABLE")
     if model is None:
@@ -130,11 +144,13 @@ def main(model=None, new_model_name="animal", output_dir='models/animals_persons
             print("Losses", losses)
 
     # test the trained model
-    test_text = "Do you like horses?"
-    doc = nlp(test_text)
-    print("Entities in '%s'" % test_text)
-    for ent in doc.ents:
-        print(ent.label_, ent.text)
+    test_text_list = ["Do you like horses?", "Who is James Bond", "Is Northwest a good company?"]
+    for test_text in test_text_list:
+        doc = nlp(test_text)
+        print("Entities in '%s'" % test_text)
+        for ent in doc.ents:
+            print(ent.label_, ent.text)
+        print("===========================================================================")
 
     # save model to output directory
     if output_dir is not None:
@@ -157,3 +173,4 @@ def main(model=None, new_model_name="animal", output_dir='models/animals_persons
 
 if __name__ == "__main__":
     plac.call(main)
+    
