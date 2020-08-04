@@ -28,7 +28,13 @@ def evaluate_ner(spacy_ner_model, list_labeled_examples: list):
         pred_value = spacy_ner_model(input_)
         scorer.score(pred_value, gold)
 
-    return scorer.scores
+    dict_perf = scorer.scores
+    dict_perf_out = dict()
+    dict_perf_out['precision'] = dict_perf['ents_p']
+    dict_perf_out['recall'] = dict_perf['ents_r']
+    dict_perf_out['F1'] = dict_perf['ents_f']
+
+    return dict_perf_out
 
 
 def tag_all_text(text_in: str, word_to_tag: str):
@@ -60,21 +66,8 @@ def get_all_tagged_sentence_many_entity(text_in: str, entity_dictionary: dict):
     return tagged_sentence
 
 
-def train_customized_ner(model=None,
+def train_customized_ner(list_train_data, model=None,
                          output_dir: str = 'models/customized_ner/', n_iter: int = 100):
-    # read data and get it tagged
-    df_train_data = pd.read_csv('data/training_data.csv')
-    df_entities = pd.read_csv('data/entities.csv')
-    list_term = list(df_entities['TERM'])
-    list_entity = list(df_entities['ENTITY'])
-    dict_entities = dict(zip(list_term, list_entity))
-
-    #dict_entities = {'Canada': 'GPE', 'horse': ' ANIMAL', 'summer': 'SEASON'}
-
-    df_train_data['TEXT_TAGGED'] = \
-        df_train_data['NOTE_TEXT'].apply(lambda x: get_all_tagged_sentence_many_entity(x,
-                                                                                       entity_dictionary=dict_entities))
-    list_train_data = list(df_train_data['TEXT_TAGGED'])
 
     print("Tagged text")
     print(list_train_data)
@@ -134,11 +127,7 @@ def train_customized_ner(model=None,
         # display predictions on training data
         print('Showing output in training data...')
         for text, _ in list_train_data:
-            print('text', text)
-            #print(_)
             doc = nlp(text)
-            # matcher.vocab.strings[ent_id]
-
             matcher = Matcher(nlp.vocab)
 
             print("Entities", [(ent.text, matcher.vocab.strings[ent.label]) for ent in doc.ents])
@@ -167,8 +156,33 @@ def train_customized_ner(model=None,
                 print("Tokens", [(t.text, matcher.vocab.strings[t.ent_type], t.ent_iob) for t in doc])
 
 
+def get_tagged_data(path_to_csv_data: str, path_to_csv_entities: str):
+    # read data and get it tagged
+    df_data = pd.read_csv(path_to_csv_data)
+    df_entities = pd.read_csv(path_to_csv_entities)
+    list_term = list(df_entities['TERM'])
+    list_entity = list(df_entities['ENTITY'])
+    dict_entities = dict(zip(list_term, list_entity))
+
+    df_data['TEXT_TAGGED'] =\
+        df_data['NOTE_TEXT'].apply(lambda x: get_all_tagged_sentence_many_entity(x,
+                                                                                 entity_dictionary=dict_entities))
+
+    list_tagged_data = list(df_data['TEXT_TAGGED'])
+
+    return list_tagged_data
+
+
 if __name__ == '__main__':
-    # wiki_link = 'https://en.wikipedia.org/wiki/20th_century'
-    train_customized_ner()
+    # read data and get it tagged
+    list_training_data = get_tagged_data(path_to_csv_data='data/training_data.csv',
+                                         path_to_csv_entities='data/entities.csv')
+
+    train_customized_ner(list_train_data=list_training_data, n_iter=20)
+
+    nlp_custom = spacy.load('models/customized_ner/')
+    ner_train_performance = evaluate_ner(spacy_ner_model=nlp_custom, list_labeled_examples=list_training_data)
+    print(ner_train_performance)
+
 
 
