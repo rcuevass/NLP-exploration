@@ -1,13 +1,7 @@
 from __future__ import unicode_literals, print_function
-
 import spacy
 from spacy.gold import GoldParse
-
-
 from spacy.matcher import Matcher
-
-
-#from spacy.matcher import matcher
 from spacy.scorer import Scorer
 from spacy import displacy
 from spacy.util import minibatch, compounding
