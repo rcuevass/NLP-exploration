@@ -1,3 +1,5 @@
+from __future__ import unicode_literals, print_function
+
 import spacy
 from spacy.gold import GoldParse
 from spacy.scorer import Scorer
@@ -7,6 +9,7 @@ import plac
 import random
 import warnings
 from pathlib import Path
+import pandas as pd
 
 
 def evaluate_ner(spacy_ner_model, list_labeled_examples: list):
@@ -124,3 +127,19 @@ def train_ner(list_train_data: list, model=None, output_dir: str = 'models/custo
                 doc = nlp2(text)
                 print("Entities", [(ent.text, ent.label) for ent in doc.ents])
                 print("Tokens", [(t.text, t.ent_type, t.ent_iob) for t in doc])
+
+
+def all_training_process():
+    # read data and tags
+    print("Starting ... ")
+    df_train_data = pd.read_csv('data/training_data.csv')
+    df_entities = pd.read_csv('data/entities.csv')
+    print(df_entities.to_dict())
+    #df_train_data['TEXT_TAGGED'] = df_train_data['NOTE_TEXT'].apply(lambda x: get_all_tagged_sentence_many_entity(x,))
+    df_entities = pd.read_csv('data/entities.csv')
+
+
+if __name__ == '__main__':
+    # wiki_link = 'https://en.wikipedia.org/wiki/20th_century'
+    #all_training_process()
+    pass
