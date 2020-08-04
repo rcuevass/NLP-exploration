@@ -20,3 +20,6 @@ named-entity-recognizer/.ipynb_checkpoints
 
 # spacy models
 named-entity-recognizer/models/
+
+# experiments
+named-entity-recognizer/experiments
