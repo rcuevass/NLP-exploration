@@ -60,8 +60,8 @@ def get_all_tagged_sentence_many_entity(text_in: str, entity_dictionary: dict):
     return tagged_sentence
 
 
-def main(model=None,
-         output_dir: str = 'models/customized_ner/', n_iter: int = 20):
+def train_customized_ner(model=None,
+                         output_dir: str = 'models/customized_ner/', n_iter: int = 100):
     # read data and get it tagged
     df_train_data = pd.read_csv('data/training_data.csv')
     df_entities = pd.read_csv('data/entities.csv')
@@ -69,7 +69,7 @@ def main(model=None,
     list_entity = list(df_entities['ENTITY'])
     dict_entities = dict(zip(list_term, list_entity))
 
-    dict_entities = {'Canada': 'GPE', 'horse': ' ANIMAL', 'summer': 'SEASON'}
+    #dict_entities = {'Canada': 'GPE', 'horse': ' ANIMAL', 'summer': 'SEASON'}
 
     df_train_data['TEXT_TAGGED'] = \
         df_train_data['NOTE_TEXT'].apply(lambda x: get_all_tagged_sentence_many_entity(x,
@@ -160,7 +160,7 @@ def main(model=None,
                 doc = nlp2(text)
 
                 matcher = Matcher(nlp2.vocab)
-                
+
                 #print("Entities", [(ent.text, ent.label) for ent in doc.ents])
                 #print("Tokens", [(t.text, t.ent_type, t.ent_iob) for t in doc])
                 print("Entities", [(ent.text, matcher.vocab.strings[ent.label]) for ent in doc.ents])
@@ -169,6 +169,6 @@ def main(model=None,
 
 if __name__ == '__main__':
     # wiki_link = 'https://en.wikipedia.org/wiki/20th_century'
-    main()
+    train_customized_ner()
 
 
