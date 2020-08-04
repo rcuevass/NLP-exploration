@@ -1,3 +1,4 @@
+import spacy
 from spacy.gold import GoldParse
 from spacy.scorer import Scorer
 from spacy import displacy
@@ -48,3 +49,78 @@ def get_all_tagged_sentence_many_entity(text_in: str, entity_dictionary: dict):
     tagged_sentence = (text_in, dict_to_tag)
 
     return tagged_sentence
+
+
+def train_ner(list_train_data: list, model=None, output_dir: str = 'models/customized_ner/', n_iter: int=100):
+    """ Load the model, set up the pipeline and train the NER"""
+    if model is not None:
+        nlp = spacy.load(model)
+        print("Loaded model '%s'" % model)
+    else:
+        # create blank language class
+        nlp = spacy.blank("en")
+        print("Created blank 'en' model")
+
+    # create the built-in pipeline components and add them to the pipeline
+    # nlp.create_pipe works for built-ins that are registered with spacy
+    # add labels
+    if "ner" not in nlp.pipe_names:
+        ner = nlp.create_pipe("ner")
+        nlp.add_pipe(ner, last=True)
+    # otherwise, get it so we can add labels
+    else:
+        ner = nlp.get_pipe("ner")
+
+    for _, annotations in list_train_data:
+        for ent in annotations.get("entities"):
+            ner.add_label(ent[2])
+
+    # get names of other pipes to disable them during training
+    pipe_exceptions = ["ner", "trf_wordpiecer", "trf_tok2vec"]
+    other_pipes = [pipe for pipe in nlp.pipe_names if pipe not in pipe_exceptions]
+    # only train NER
+    with nlp.disable_pipes(*other_pipes) and warnings.catch_warnings():
+        # show warnings for misaligned entity spans once
+        warnings.filterwarnings("once", category=UserWarning, module='spacy')
+
+        # reset and initialize the weights randomly - but only if we are trinaing
+        # a new model
+        if model is None:
+            nlp.begin_training(learn_rate=0.001)
+
+        for itn in range(n_iter):
+            random.shuffle(list_train_data)
+            losses = {}
+            # batch up the examples using spacy's minibatch
+            batches = minibatch(list_train_data, size=compounding(4.0, 32.0, 1.001))
+            for batch in batches:
+                texts, annotations = zip(*batch)
+                nlp.update(
+                    texts, # batch of text
+                    annotations, # batch of annotations
+                    drop=0.5, # dropout - make it harder to memorise data
+                    losses=losses,
+                )
+            print("Losses", losses)
+
+        # display predictions on training data
+        for text, _ in list_train_data:
+            doc = nlp(text)
+            print("Entities", [(ent.text, ent.label) for ent in doc.ents])
+            print("Tokens", [(t.text, t.ent_type, t.ent_iob) for t in doc])
+
+        # save model to directory
+        if output_dir is not None:
+            output_dir = Path(output_dir)
+            if not output_dir.exists():
+                output_dir.mkdir()
+            nlp.to_disk(output_dir)
+            print("Saved model to ", output_dir)
+
+            # test the saved model
+            print("Loading model from ", output_dir)
+            nlp2 = spacy.load(output_dir)
+            for text, _ in list_train_data:
+                doc = nlp2(text)
+                print("Entities", [(ent.text, ent.label) for ent in doc.ents])
+                print("Tokens", [(t.text, t.ent_type, t.ent_iob) for t in doc])
