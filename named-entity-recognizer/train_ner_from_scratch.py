@@ -2,6 +2,12 @@ from __future__ import unicode_literals, print_function
 
 import spacy
 from spacy.gold import GoldParse
+
+
+from spacy.matcher import Matcher
+
+
+#from spacy.matcher import matcher
 from spacy.scorer import Scorer
 from spacy import displacy
 from spacy.util import minibatch, compounding
@@ -54,7 +60,26 @@ def get_all_tagged_sentence_many_entity(text_in: str, entity_dictionary: dict):
     return tagged_sentence
 
 
-def train_ner(list_train_data: list, model=None, output_dir: str = 'models/customized_ner/', n_iter: int=100):
+def main(model=None,
+         output_dir: str = 'models/customized_ner/', n_iter: int = 20):
+    # read data and get it tagged
+    df_train_data = pd.read_csv('data/training_data.csv')
+    df_entities = pd.read_csv('data/entities.csv')
+    list_term = list(df_entities['TERM'])
+    list_entity = list(df_entities['ENTITY'])
+    dict_entities = dict(zip(list_term, list_entity))
+
+    dict_entities = {'Canada': 'GPE', 'horse': ' ANIMAL', 'summer': 'SEASON'}
+
+    df_train_data['TEXT_TAGGED'] = \
+        df_train_data['NOTE_TEXT'].apply(lambda x: get_all_tagged_sentence_many_entity(x,
+                                                                                       entity_dictionary=dict_entities))
+    list_train_data = list(df_train_data['TEXT_TAGGED'])
+
+    print("Tagged text")
+    print(list_train_data)
+    print("==========================================")
+
     """ Load the model, set up the pipeline and train the NER"""
     if model is not None:
         nlp = spacy.load(model)
@@ -89,7 +114,7 @@ def train_ner(list_train_data: list, model=None, output_dir: str = 'models/custo
         # reset and initialize the weights randomly - but only if we are trinaing
         # a new model
         if model is None:
-            nlp.begin_training(learn_rate=0.001)
+            nlp.begin_training(learn_rate=0.0005)
 
         for itn in range(n_iter):
             random.shuffle(list_train_data)
@@ -107,10 +132,18 @@ def train_ner(list_train_data: list, model=None, output_dir: str = 'models/custo
             print("Losses", losses)
 
         # display predictions on training data
+        print('Showing output in training data...')
         for text, _ in list_train_data:
+            print('text', text)
+            #print(_)
             doc = nlp(text)
-            print("Entities", [(ent.text, ent.label) for ent in doc.ents])
-            print("Tokens", [(t.text, t.ent_type, t.ent_iob) for t in doc])
+            # matcher.vocab.strings[ent_id]
+
+            matcher = Matcher(nlp.vocab)
+
+            print("Entities", [(ent.text, matcher.vocab.strings[ent.label]) for ent in doc.ents])
+            print("Tokens", [(t.text, matcher.vocab.strings[t.ent_type], t.ent_iob) for t in doc])
+        print("=====================================================================")
 
         # save model to directory
         if output_dir is not None:
@@ -125,21 +158,17 @@ def train_ner(list_train_data: list, model=None, output_dir: str = 'models/custo
             nlp2 = spacy.load(output_dir)
             for text, _ in list_train_data:
                 doc = nlp2(text)
-                print("Entities", [(ent.text, ent.label) for ent in doc.ents])
-                print("Tokens", [(t.text, t.ent_type, t.ent_iob) for t in doc])
 
-
-def all_training_process():
-    # read data and tags
-    print("Starting ... ")
-    df_train_data = pd.read_csv('data/training_data.csv')
-    df_entities = pd.read_csv('data/entities.csv')
-    print(df_entities.to_dict())
-    #df_train_data['TEXT_TAGGED'] = df_train_data['NOTE_TEXT'].apply(lambda x: get_all_tagged_sentence_many_entity(x,))
-    df_entities = pd.read_csv('data/entities.csv')
+                matcher = Matcher(nlp2.vocab)
+                
+                #print("Entities", [(ent.text, ent.label) for ent in doc.ents])
+                #print("Tokens", [(t.text, t.ent_type, t.ent_iob) for t in doc])
+                print("Entities", [(ent.text, matcher.vocab.strings[ent.label]) for ent in doc.ents])
+                print("Tokens", [(t.text, matcher.vocab.strings[t.ent_type], t.ent_iob) for t in doc])
 
 
 if __name__ == '__main__':
     # wiki_link = 'https://en.wikipedia.org/wiki/20th_century'
-    #all_training_process()
-    pass
+    main()
+
+
