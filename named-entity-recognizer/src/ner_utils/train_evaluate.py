@@ -42,7 +42,7 @@ def get_all_tagged_sentence_many_entity(text_in: str, entity_dictionary: dict):
 
 
 def train_customized_ner(list_train_data, model=None,
-                         output_dir: str = 'models/customized_ner/',
+                         output_dir: str = '../models/customized_ner/',
                          n_iter: int = 100, drop_out_val=0.5, learning_rate=0.001):
 
     print("Tagged text")

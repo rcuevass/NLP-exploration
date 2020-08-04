@@ -173,4 +173,3 @@ def main(model=None, new_model_name="animal", output_dir='models/wild/', n_iter=
 
 if __name__ == "__main__":
     plac.call(main)
-    
