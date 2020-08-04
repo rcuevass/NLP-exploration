@@ -1,5 +1,4 @@
-import spacy
-from ner_utils.train_evaluate import get_tagged_data, train_customized_ner, evaluate_ner
+from ner_utils.train_evaluate import get_tagged_data, CustomizedNer
 
 
 if __name__ == '__main__':
@@ -7,12 +6,14 @@ if __name__ == '__main__':
     list_training_data = get_tagged_data(path_to_csv_data='../data/training_data.csv',
                                          path_to_csv_entities='../data/entities.csv')
 
-    dict_losses = train_customized_ner(list_train_data=list_training_data, n_iter=30)
-    print(dict_losses)
+    # instantiate customized NER
+    ner_model = CustomizedNer()
+    # train it
+    ner_model.train(list_training_data)
+    # get dictionary of performance metrics
+    dict_metrics = ner_model.predict(list_training_data)
+    print(dict_metrics)
 
-    nlp_custom = spacy.load('../models/customized_ner/')
-    ner_train_performance = evaluate_ner(spacy_ner_model=nlp_custom, list_labeled_examples=list_training_data)
-    print(ner_train_performance)
 
 
 
