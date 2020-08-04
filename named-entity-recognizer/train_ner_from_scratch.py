@@ -67,7 +67,8 @@ def get_all_tagged_sentence_many_entity(text_in: str, entity_dictionary: dict):
 
 
 def train_customized_ner(list_train_data, model=None,
-                         output_dir: str = 'models/customized_ner/', n_iter: int = 100):
+                         output_dir: str = 'models/customized_ner/',
+                         n_iter: int = 100, drop_out_val=0.5, learning_rate=0.001):
 
     print("Tagged text")
     print(list_train_data)
@@ -107,7 +108,7 @@ def train_customized_ner(list_train_data, model=None,
         # reset and initialize the weights randomly - but only if we are trinaing
         # a new model
         if model is None:
-            nlp.begin_training(learn_rate=0.0005)
+            nlp.begin_training(learn_rate=learning_rate)
 
         for itn in range(n_iter):
             random.shuffle(list_train_data)
@@ -119,7 +120,7 @@ def train_customized_ner(list_train_data, model=None,
                 nlp.update(
                     texts, # batch of text
                     annotations, # batch of annotations
-                    drop=0.5, # dropout - make it harder to memorise data
+                    drop=drop_out_val, # dropout - make it harder to memorise data
                     losses=losses,
                 )
             print("Losses", losses)
@@ -178,7 +179,7 @@ if __name__ == '__main__':
     list_training_data = get_tagged_data(path_to_csv_data='data/training_data.csv',
                                          path_to_csv_entities='data/entities.csv')
 
-    train_customized_ner(list_train_data=list_training_data, n_iter=20)
+    train_customized_ner(list_train_data=list_training_data, n_iter=30)
 
     nlp_custom = spacy.load('models/customized_ner/')
     ner_train_performance = evaluate_ner(spacy_ner_model=nlp_custom, list_labeled_examples=list_training_data)
