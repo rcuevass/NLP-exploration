@@ -85,6 +85,9 @@ def train_customized_ner(list_train_data, model=None,
         if model is None:
             nlp.begin_training(learn_rate=learning_rate)
 
+        list_iters = []
+        list_losses = []
+
         for itn in range(n_iter):
             random.shuffle(list_train_data)
             losses = {}
@@ -98,6 +101,8 @@ def train_customized_ner(list_train_data, model=None,
                     drop=drop_out_val, # dropout - make it harder to memorise data
                     losses=losses,
                 )
+            list_iters.append(itn+1)
+            list_losses.append(losses['ner'])
             print("Losses", losses)
 
         # display predictions on training data
@@ -130,6 +135,9 @@ def train_customized_ner(list_train_data, model=None,
                 #print("Tokens", [(t.text, t.ent_type, t.ent_iob) for t in doc])
                 print("Entities", [(ent.text, matcher.vocab.strings[ent.label]) for ent in doc.ents])
                 print("Tokens", [(t.text, matcher.vocab.strings[t.ent_type], t.ent_iob) for t in doc])
+
+    dict_iter_losses = dict(zip(list_iters, list_losses))
+    return dict_iter_losses
 
 
 def get_tagged_data(path_to_csv_data: str, path_to_csv_entities: str):
