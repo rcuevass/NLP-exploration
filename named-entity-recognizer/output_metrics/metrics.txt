@@ -1,0 +1,7 @@
+Number of iterations: 35
+Precision training: 94.12
+Precision test: 62.5
+Recall training: 94.12
+Recall test: 76.92
+F1 training: 94.12
+F1 test: 68.97

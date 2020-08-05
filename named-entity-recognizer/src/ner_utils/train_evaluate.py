@@ -10,6 +10,7 @@ import random
 import warnings
 from pathlib import Path
 import pandas as pd
+from matplotlib import pyplot as plt
 
 
 def get_tagged_data(path_to_csv_data: str, path_to_csv_entities: str):
@@ -162,6 +163,12 @@ class CustomizedNer:
                     print("Entities", [(ent.text, matcher.vocab.strings[ent.label]) for ent in doc.ents])
                     print("Tokens", [(t.text, matcher.vocab.strings[t.ent_type], t.ent_iob) for t in doc])
 
+        # plot loss vs iteration
+        plt.plot(list_iters, list_losses)
+        plt.title("Plot of training loss for NER")
+        plt.xlabel("Iteration number")
+        plt.ylabel("Loss")
+        plt.savefig('../plots/loss_vs_iteration.png')
         self.dict_iter_losses = dict(zip(list_iters, list_losses))
         return self.dict_iter_losses
 

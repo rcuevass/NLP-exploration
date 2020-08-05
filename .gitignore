@@ -17,9 +17,13 @@ corpus/*.pkl
 # notebooks checkpoints
 notebooks/.ipynb_checkpoints
 named-entity-recognizer/.ipynb_checkpoints
+named-entity-recognizer/notebooks/.ipynb_checkpoints
 
 # spacy models
-named-entity-recognizer/models/
+named-entity-recognizer/models/animals_persons
+named-entity-recognizer/models/customized_ner
+named-entity-recognizer/models/horse
+named-entity-recognizer/models/wild
 
 # experiments
 named-entity-recognizer/experimentation
