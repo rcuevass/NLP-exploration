@@ -3,17 +3,21 @@ from ner_utils.train_evaluate import get_tagged_data, CustomizedNer
 
 if __name__ == '__main__':
     # read data and get it tagged for both training and test
-    list_training_data = get_tagged_data(path_to_csv_data='../data/training_data.csv',
+    list_training_data = get_tagged_data(path_to_csv_data='../data/training_data_small.csv',
                                          path_to_csv_entities='../data/entities.csv')
 
     list_test_data = get_tagged_data(path_to_csv_data='../data/test_data.csv',
                                      path_to_csv_entities='../data/entities.csv')
 
     # instantiate customized NER
-    num_iters = 35
+    num_iters = 50
     ner_model = CustomizedNer(number_iterations=num_iters)
     # train it
-    ner_model.train(list_training_data)
+    #ner_model.train(list_training_data)
+    ner_model.train_early_stop(list_train_data=list_training_data,
+                               list_test_data=list_test_data,
+                               enhancement_iteration_factor=0.08,
+                               use_mini_batch=False, verbose=False)
     # get dictionary of performance metrics for training
     dict_metrics_training = ner_model.predict(list_training_data)
     print(dict_metrics_training)
