@@ -59,6 +59,25 @@ def get_all_tagged_sentence_many_entity(text_in: str, entity_dictionary: dict):
     return tagged_sentence
 
 
+def predict_on_iteration(nlp_model, list_data: list):
+    count_ = 0
+    scorer = Scorer()
+    for input_, annotation_ in list_data:
+        count_ += 1
+        doc_gold_text = nlp_model.make_doc(input_)
+        gold = GoldParse(doc_gold_text, entities=annotation_['entities'])
+        pred_value = nlp_model(input_)
+        scorer.score(pred_value, gold)
+
+    dict_perf = scorer.scores
+    dict_perf_out = dict()
+    dict_perf_out['precision'] = dict_perf['ents_p']
+    dict_perf_out['recall'] = dict_perf['ents_r']
+    dict_perf_out['F1'] = dict_perf['ents_f']
+
+    return dict_perf_out
+
+
 class CustomizedNer:
     def __init__(self, number_iterations=30, learning_rate=0.01, drop_out=0.5,
                  model=None, output_dir: str = '../models/customized_ner/'):
@@ -215,6 +234,8 @@ class CustomizedNer:
             list_iters = []
             list_losses_train = []
             list_losses_test = []
+            list_F1_train = []
+            list_F1_test = []
 
             if not use_mini_batch:
                 all_texts_training = [x[0] for x in list_train_data]
@@ -252,9 +273,17 @@ class CustomizedNer:
 
                 list_losses_train.append(losses['ner'])
                 list_losses_test.append(losses_test['ner'])
-                print("Losses train", losses)
-                print("Losses test", losses_test)
-                print("=============================================")
+
+                # get metrics for training and test
+                metrics_training = predict_on_iteration(nlp, list_train_data)
+                metrics_test = predict_on_iteration(nlp, list_test_data)
+
+                list_F1_train.append(metrics_training['F1'])
+                list_F1_test.append(metrics_test['F1'])
+
+                print("Losses train ", losses['ner'], " F1 train ", metrics_training['F1'])
+                print("Losses test", losses_test['ner'], " F1 test ", metrics_test['F1'])
+                print("===================================================")
                 if (losses_test['ner'] < losses['ner']) & (losses['ner'] <= enhancement_iteration_factor*initial_loss):
                     print('Stopping at iteration number ', itn+1)
                     break
@@ -278,7 +307,6 @@ class CustomizedNer:
                 nlp.to_disk(output_dir)
                 print("Saved model to ", output_dir)
 
-
                 if verbose:
                     # test the saved model
                     print("Loading model from ", output_dir)
@@ -293,6 +321,15 @@ class CustomizedNer:
                         print("Entities", [(ent.text, matcher.vocab.strings[ent.label]) for ent in doc.ents])
                         print("Tokens", [(t.text, matcher.vocab.strings[t.ent_type], t.ent_iob) for t in doc])
 
+        # dataframe for loss and F1
+        df_iterations = pd.DataFrame(list(zip(list_iters,
+                                              list_losses_train,
+                                              list_losses_test,
+                                              list_F1_train,
+                                              list_F1_test)),
+                                     columns=['ITERATION', 'LOSS_TRAINING', 'LOSS_TEST',
+                                              'F1_TRAINING', 'F1_TEST'])
+        df_iterations.to_csv('../output_metrics/iterations_metrics.csv', index=False)
         # plot loss vs iteration
         plt.plot(list_iters, list_losses_train, 'b-o', label='training')
         plt.plot(list_iters, list_losses_test, 'r-s', label='test')
