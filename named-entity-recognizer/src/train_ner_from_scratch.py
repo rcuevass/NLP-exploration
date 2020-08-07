@@ -12,8 +12,7 @@ if __name__ == '__main__':
     # instantiate customized NER
     num_iters = 50
     ner_model = CustomizedNer(number_iterations=num_iters)
-    # train it
-    #ner_model.train(list_training_data)
+    # train it; early stop is set by default
     ner_model.train_early_stop(list_train_data=list_training_data,
                                list_test_data=list_test_data,
                                enhancement_iteration_factor=0.085,
