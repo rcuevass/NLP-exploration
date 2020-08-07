@@ -16,7 +16,7 @@ if __name__ == '__main__':
     #ner_model.train(list_training_data)
     ner_model.train_early_stop(list_train_data=list_training_data,
                                list_test_data=list_test_data,
-                               enhancement_iteration_factor=0.08,
+                               enhancement_iteration_factor=0.085,
                                use_mini_batch=False, verbose=False)
     # get dictionary of performance metrics for training
     dict_metrics_training = ner_model.predict(list_training_data)

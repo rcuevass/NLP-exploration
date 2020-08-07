@@ -297,7 +297,7 @@ class CustomizedNer:
         plt.plot(list_iters, list_losses_train, 'b-o', label='training')
         plt.plot(list_iters, list_losses_test, 'r-s', label='test')
         plt.legend(loc='upper right', numpoints=1)
-        plt.title("Plot of training loss for NER")
+        plt.title("Plot of training and test loss for NER")
         plt.xlabel("Iteration number")
         plt.ylabel("Loss")
         plt.savefig('../plots/loss_vs_iteration.png')
