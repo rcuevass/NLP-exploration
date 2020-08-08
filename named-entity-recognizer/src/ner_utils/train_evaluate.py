@@ -13,24 +13,46 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 
-def get_tagged_data(path_to_csv_data: str, path_to_csv_entities: str):
-    # read data and get it tagged
+def get_tagged_data(path_to_csv_data: str, path_to_csv_entities: str) -> list:
+    """
+    Function that does tagging of text captured in a csv file based on a second file containing 
+    two columns: word and corresponding entity for it.
+    :param path_to_csv_data: string capturing the path to the csv for the data to be tagged
+    :param path_to_csv_entities: string capturing the path the csv containing 
+    :return: list_tagged_data: list of tagged data.
+              E.g. [(This is a nice summer, {"entities":(15, 21, SEASON)})]
+    """
+    # read data and file that contains pair of words and entities
     df_data = pd.read_csv(path_to_csv_data)
     df_entities = pd.read_csv(path_to_csv_entities)
+    # turn columns for TERM and ENTITY into lists
     list_term = list(df_entities['TERM'])
     list_entity = list(df_entities['ENTITY'])
+    # make a dictionary out of those two lists
     dict_entities = dict(zip(list_term, list_entity))
 
-    df_data['TEXT_TAGGED'] =\
-        df_data['NOTE_TEXT'].apply(lambda x: get_all_tagged_sentence_many_entity(x,
-                                                                                 entity_dictionary=dict_entities))
-
-    list_tagged_data = list(df_data['TEXT_TAGGED'])
+    # create list of tagged text in the format expected by spaCy
+    list_tagged_data = [get_all_tagged_sentence_many_entity(text_x, entity_dictionary=dict_entities) for
+                        text_x in list(df_data['NOTE_TEXT'])]
 
     return list_tagged_data
 
 
-def tag_all_text(text_in: str, word_to_tag: str):
+def get_list_pos_one_word(text_in: str, word_to_tag: str) -> list:
+    """
+    Function that, based on input text and a words that will be tagged, returns
+    a list of initial and final positions of the string where the tagged word is located
+    :param text_in: string containing the text that will be tagged
+    :param word_to_tag: string containing the word within text_in that will be tagged
+    :return: list_positions: list containing initial and final positions within text_in where word_to_tag is located
+
+    E.g. text_in: "This is fun. I like having fun"
+         word_to_tag: "fun"
+         list_positions = [(8,11),(27,30)]
+
+    """
+
+    #
     len_word = len(word_to_tag)
     # get initial positions
     matches = plac.re.finditer(word_to_tag, text_in)
@@ -45,7 +67,7 @@ def get_all_tagged_sentence_many_entity(text_in: str, entity_dictionary: dict):
     list_words = entity_dictionary.keys()
     for word_ in list_words:
         # get list of positions for given entities
-        aux_list_positions = tag_all_text(text_in, word_)
+        aux_list_positions = get_list_pos_one_word(text_in, word_)
         # get instance
         aux_instance = entity_dictionary[word_]
         # update list with instance

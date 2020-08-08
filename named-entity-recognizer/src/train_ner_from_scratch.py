@@ -9,7 +9,7 @@ if __name__ == '__main__':
     list_test_data = get_tagged_data(path_to_csv_data='../data/test_data.csv',
                                      path_to_csv_entities='../data/entities.csv')
 
-    # instantiate customized NER
+    # instantiate customized NER with selected number of iterations
     num_iters = 50
     ner_model = CustomizedNer(number_iterations=num_iters)
     # train it; early stop is set by default
@@ -17,6 +17,7 @@ if __name__ == '__main__':
                                list_test_data=list_test_data,
                                enhancement_iteration_factor=0.085,
                                use_mini_batch=False, verbose=False)
+
     # get dictionary of performance metrics for training
     dict_metrics_training = ner_model.predict(list_training_data)
     print(dict_metrics_training)
@@ -31,6 +32,7 @@ if __name__ == '__main__':
     recall_test = dict_metrics_test['recall']
     f1_test = dict_metrics_test['F1']
 
+    # create a simple txt files that captures the precision, recall and F1 for both training and test sets
     with open("../output_metrics/metrics.txt", 'w') as outfile:
         outfile.writelines(["Number of iterations: " + str(round(num_iters, 2)) + "\n",
                             "Precision training: " + str(round(precision_train, 2)) + "\n",
