@@ -10,8 +10,12 @@ import random
 import warnings
 from pathlib import Path
 import pandas as pd
+from ner_utils.logger import get_log_object
 from matplotlib import pyplot as plt
 
+
+# instantiate log object
+log = get_log_object()
 
 def get_list_pos_one_word(text_in: str, word_to_tag: str) -> list:
     """
@@ -272,16 +276,16 @@ class CustomizedNer:
                 list_F1_test.append(metrics_test['F1'])
 
                 # display values of loss and F1 for both training and test
-                print("Losses train ", losses['ner'], " F1 train ", metrics_training['F1'])
-                print("Losses test", losses_test['ner'], " F1 test ", metrics_test['F1'])
-                print("===================================================")
+                log.info("Losses train=%f,  F1 train=%f ", losses['ner'], metrics_training['F1'])
+                log.info("Losses test=%f,  F1 test=%f ", losses['ner'], metrics_test['F1'])
+                log.info("===================================================")
 
                 # if early stop is being used, compare the loss at the given iteration with
                 # the loss of the initial iteration factored by enhancement_iteration_factor...
                 if early_stop:
                     if (losses_test['ner'] < losses['ner']) & (
                             losses['ner'] <= enhancement_iteration_factor * initial_loss):
-                        print('Stopping at iteration number ', itn + 1)
+                        log.info('Stopping at iteration number %i', itn + 1)
                         break
 
             # display predictions on training data

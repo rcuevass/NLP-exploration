@@ -4,6 +4,9 @@
 # logs
 logs/*.log
 logs/*.log.*
+named-entity-recognizer/logs/*.log
+named-entity-recognizer/logs/*.log.*
+
 
 # data
 #data/
