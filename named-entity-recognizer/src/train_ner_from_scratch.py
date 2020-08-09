@@ -3,11 +3,11 @@ from ner_utils.train_evaluate import get_tagged_data, CustomizedNer
 
 if __name__ == '__main__':
     # read data and get it tagged for both training and test
-    list_training_data = get_tagged_data(path_to_csv_data='../data/training_data_small.csv',
-                                         path_to_csv_entities='../data/entities.csv')
+    list_training_data = get_tagged_data(path_to_csv_data='../data_sample/training_data_small.csv',
+                                         path_to_csv_entities='../data_sample/entities.csv')
 
-    list_test_data = get_tagged_data(path_to_csv_data='../data/test_data.csv',
-                                     path_to_csv_entities='../data/entities.csv')
+    list_test_data = get_tagged_data(path_to_csv_data='../data_sample/test_data.csv',
+                                     path_to_csv_entities='../data_sample/entities.csv')
 
     # instantiate customized NER with selected number of iterations
     num_iters = 50
