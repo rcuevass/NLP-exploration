@@ -6,7 +6,7 @@ can do tagging of text with entities of interest.
 
 There are several sub-folders included in this folder:
 
-* data. Contains training and test data in csv format as well as a csv with two columns that capture the pairs of words
+* data_sample. Contains training and test data in csv format as well as a csv with two columns that capture the pairs of words
 and labels the user wants to identify with the customized trained NER.
 The dataset included are fairly small as the main intention is to show the process of building a customized NER.
 
