@@ -1,6 +1,6 @@
 # Named-entity recognition 
 
-Folder that exemplifies use of spaCy to train a customized named-entity recognition model.
+Folder that exemplifies use of [**spaCy**](https://spacy.io/) to train a customized named-entity recognition model.
 The datasets included are fairly small as the main purpose of this folder is to provide a simple idea on how the user
 can do tagging of text with entities of interest. 
 
