@@ -5,9 +5,54 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize, sent_tokenize
 from utilities.logger import get_log_object
+import numpy as np
+from scipy.stats import mode
 
 # instantiate log object
 log = get_log_object()
+
+
+def min_threshold_summary_length(text_to_summarize: str, min_threshold: int = 5, max_threshold: int = 50) -> int:
+    """
+    Function that finds the minimum threshold that provides the same length of summary.
+    :param text_to_summarize: string that captures the content of the Wikipedia page
+    :param min_threshold: integer -  minimum value to be considered for the consideration of the note length
+    :param max_threshold: integer - maximum value to be considered for the consideration of the note length
+    :return: minimum value of threshold that provides the same length of summary
+    """
+
+    # from min and max values; get a list
+    list_thresholds = list(range(min_threshold, max_threshold+1))
+    # initialize dictionary
+    dict_thresholds = dict()
+    # loop over values of threshold given from the input thresholds
+    for thresh_ in list_thresholds:
+        # obtain summary for the value of threshold in turn
+        text_summarized = run_article_summary(text_to_summarize, substring_threshold_value=thresh_)
+        # split summary obtained...
+        text_summarized_split = text_summarized.split()
+        # update dictionary with the corresponding length of summary
+        dict_thresholds[thresh_] = len(text_summarized_split)
+
+    # turn list of values from dictionary into numpy array
+    np_values = np.array(list(dict_thresholds.values()))
+    # capture mode - proxy to most stable length of summary
+    mode_value = mode(np_values)[0]
+
+    log.info('Mode for length of summary %f', mode_value)
+
+    # initialize list of keys
+    list_keys = []
+    # for each key in the dictionary...
+    for key_ in dict_thresholds.keys():
+        # ... append if value of key in turn matches the mode value
+        if dict_thresholds[key_] == mode_value:
+            list_keys.append(key_)
+
+    log.info('Minimum threshold value %f ', min(list_keys))
+
+    # give as output the minimum value that provides the same length of summary - mode
+    return min(list_keys)
 
 
 def create_dictionary_frequency(text_string: str) -> dict:
