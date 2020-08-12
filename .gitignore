@@ -32,3 +32,6 @@ named-entity-recognizer/models/wild
 
 # experiments
 named-entity-recognizer/experimentation
+
+# checkpoints for TF
+text-generation/training_checkpoints
