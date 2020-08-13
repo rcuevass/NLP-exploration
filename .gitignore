@@ -34,4 +34,4 @@ named-entity-recognizer/models/wild
 named-entity-recognizer/experimentation
 
 # checkpoints for TF
-text-generation/training_checkpoints
+!text-generation/training_checkpoints/README.md
